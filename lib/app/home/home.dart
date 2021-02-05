@@ -77,50 +77,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ],
-                  flexibleSpace: FlexibleSpaceBar(
-                    background: Container(
-                      padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-                      color: Colors.black12,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Total Expenses',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 27,
-                            ),
-                          ),
-                          SizedBox(height: height * 0.02),
-                          Consumer(
-                            builder: (context, watch, child) {
-                              final totalExpenses = watch(expensesNotifierProvider.state);
-                              return totalExpenses.maybeWhen(
-                                data: (item) {
-                                  return item.isNotEmpty
-                                      ? Text(
-                                          formatCurrency(item.map((e) => e.import).reduce((a, b) => a + b)) + ' €',
-                                          style: Theme.of(context).textTheme.headline2,
-                                        )
-                                      : Text(
-                                          formatCurrency(0.00) + ' €',
-                                          style: Theme.of(context).textTheme.headline2,
-                                        );
-                                },
-                                orElse: () {
-                                  return Text(
-                                    formatCurrency(0.00) + ' €',
-                                    style: Theme.of(context).textTheme.headline2,
-                                  );
-                                },
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                  flexibleSpace: buildFlexibleSpace(context, height),
                 ),
               ),
             ];
@@ -140,43 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
                     ),
                     SliverToBoxAdapter(
-                      child: Consumer(
-                        builder: (context, watch, child) {
-                          final expensesState = watch(expensesNotifierProvider.state);
-                          return expensesState.when(
-                            data: (item) {
-                              return item.isNotEmpty
-                                  ? ListView(
-                                      physics: NeverScrollableScrollPhysics(),
-                                      padding: EdgeInsets.only(bottom: height * 0.03),
-                                      shrinkWrap: true,
-                                      children: [
-                                        ...item
-                                            .map(
-                                              (item) => ProviderScope(
-                                                overrides: [_currentItem.overrideWithValue(item)],
-                                                child: const ExpenseTile(),
-                                              ),
-                                            )
-                                            .toList()
-                                      ],
-                                    )
-                                  : Center(
-                                      heightFactor: height / 30,
-                                      child: Container(
-                                        child: Text('No expenses'),
-                                      ),
-                                    );
-                            },
-                            loading: () {
-                              return const LoadingIndicator();
-                            },
-                            onError: (e, st) {
-                              return buildRetryError(context);
-                            },
-                          );
-                        },
-                      ),
+                      child: buildExpensesList(height),
                     ),
                   ],
                 ),
@@ -185,6 +106,93 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  FlexibleSpaceBar buildFlexibleSpace(BuildContext context, double height) {
+    return FlexibleSpaceBar(
+                  background: Container(
+                    padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+                    color: Colors.black12,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Total Expenses',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 27,
+                          ),
+                        ),
+                        SizedBox(height: height * 0.02),
+                        Consumer(
+                          builder: (context, watch, child) {
+                            final totalExpenses = watch(expensesNotifierProvider.state);
+                            return totalExpenses.maybeWhen(
+                              data: (item) {
+                                return item.isNotEmpty
+                                    ? Text(
+                                        formatCurrency(item.map((e) => e.import).reduce((a, b) => a + b)) + ' €',
+                                        style: Theme.of(context).textTheme.headline2,
+                                      )
+                                    : Text(
+                                        formatCurrency(0.00) + ' €',
+                                        style: Theme.of(context).textTheme.headline2,
+                                      );
+                              },
+                              orElse: () {
+                                return Text(
+                                  formatCurrency(0.00) + ' €',
+                                  style: Theme.of(context).textTheme.headline2,
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+  }
+
+  Widget buildExpensesList(double height) {
+    return Consumer(
+      builder: (context, watch, child) {
+        final expensesState = watch(expensesNotifierProvider.state);
+        return expensesState.when(
+          data: (item) {
+            return item.isNotEmpty
+                ? ListView(
+                    physics: NeverScrollableScrollPhysics(),
+                    padding: EdgeInsets.only(bottom: height * 0.03),
+                    shrinkWrap: true,
+                    children: [
+                      ...item
+                          .map(
+                            (item) => ProviderScope(
+                              overrides: [_currentItem.overrideWithValue(item)],
+                              child: const ExpenseTile(),
+                            ),
+                          )
+                          .toList()
+                    ],
+                  )
+                : Center(
+                    heightFactor: height / 30,
+                    child: Container(
+                      child: Text('No expenses'),
+                    ),
+                  );
+          },
+          loading: () {
+            return const LoadingIndicator();
+          },
+          onError: (e, st) {
+            return buildRetryError(context);
+          },
+        );
+      },
     );
   }
 
@@ -260,104 +268,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     style: Theme.of(context).textTheme.headline6,
                   ),
                   SizedBox(height: height * 0.02),
-                  Form(
-                    key: _formKey,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        TextFormField(
-                          decoration: InputDecoration(hintText: 'ex. Dog Food'),
-                          maxLength: 35,
-                          maxLengthEnforced: true,
-                          maxLines: 1,
-                          validator: (title) => title.isEmpty ? 'Title can\'t be null' : null,
-                          onSaved: (title) => _title = title.trim(),
-                        ),
-                        SizedBox(height: height * 0.02),
-                        TextFormField(
-                          textAlignVertical: TextAlignVertical.top,
-                          decoration: InputDecoration(hintText: 'What was the expense for?'),
-                          maxLength: 150,
-                          maxLengthEnforced: true,
-                          maxLines: 4,
-                          onSaved: (description) => _description = description.trim(),
-                        ),
-                        SizedBox(height: height * 0.02),
-                        TextFormField(
-                          decoration: InputDecoration(hintText: '0.00'),
-                          keyboardType: TextInputType.number,
-                          maxLines: 1,
-                          maxLength: 10,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
-                          ],
-                          enableInteractiveSelection: false,
-                          validator: (import) => import.isEmpty || int.parse(import.replaceAll('.', '')) == 0 ? 'You need an import' : null,
-                          onSaved: (import) => _import = double.parse(import.trim().replaceAll(',', '')),
-                        ),
-                        SizedBox(height: height * 0.02),
-                        TextFormField(
-                          controller: _initDate,
-                          onTap: () async {
-                            FocusScope.of(context).requestFocus(FocusNode());
-
-                            DateTime picked = await showDatePicker(
-                              locale: Locale('es'),
-                              initialEntryMode: DatePickerEntryMode.calendar,
-                              context: context,
-                              initialDate: _date,
-                              firstDate: DateTime(2020),
-                              lastDate: DateTime(2025),
-                              helpText: 'Select expense date', // Can be used as title
-                              cancelText: 'Cancel',
-                              confirmText: 'Done',
-                              fieldLabelText: 'Expense Date',
-                              errorInvalidText: 'Invalid date',
-                              fieldHintText: 'mm/dd/yyyy',
-                              errorFormatText: 'Invalid format',
-                              builder: (BuildContext context, Widget child) {
-                                return Theme(
-                                  data: ThemeData(
-                                    primaryColor: Colors.black87,
-                                    accentColor: Colors.black87,
-                                    colorScheme: ColorScheme(
-                                      brightness: Brightness.light,
-                                      primaryVariant: Colors.black87,
-                                      secondaryVariant: Colors.black87,
-                                      surface: Colors.black87,
-                                      background: Colors.black87,
-                                      error: Colors.red,
-                                      onPrimary: Colors.white,
-                                      onSecondary: Colors.black87,
-                                      onError: Colors.red,
-                                      onSurface: Colors.black87,
-                                      primary: Colors.black87,
-                                      secondary: Colors.black87,
-                                      onBackground: Colors.black87,
-                                    ),
-                                  ),
-                                  child: child,
-                                );
-                              },
-                            );
-                            if (picked != null && picked != _date){
-                              setState(() {
-                                _date = picked;
-                                _initDate.text = DateFormat.yMd('es').format(picked);
-                              });
-                            }
-                          },
-                          maxLines: 1,
-                          enableInteractiveSelection: false,
-                          onSaved: (date) {
-                           _date = DateFormat('dd/MM/yyyy').parse(date);
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
+                  buildAddForm(height, _initDate, context),
                   SizedBox(height: height * 0.03),
                   FlatButton(
                     shape: RoundedRectangleBorder(
@@ -380,10 +291,112 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget buildAddForm(double height, TextEditingController _initDate, BuildContext context) {
+    return Form(
+      key: _formKey,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          TextFormField(
+            decoration: InputDecoration(hintText: 'ex. Dog Food'),
+            maxLength: 35,
+            maxLengthEnforced: true,
+            maxLines: 1,
+            validator: (title) => title.isEmpty ? 'Title can\'t be null' : null,
+            onSaved: (title) => _title = title.trim(),
+          ),
+          SizedBox(height: height * 0.02),
+          TextFormField(
+            textAlignVertical: TextAlignVertical.top,
+            decoration: InputDecoration(hintText: 'What was the expense for?'),
+            maxLength: 150,
+            maxLengthEnforced: true,
+            maxLines: 4,
+            onSaved: (description) => _description = description.trim(),
+          ),
+          SizedBox(height: height * 0.02),
+          TextFormField(
+            decoration: InputDecoration(hintText: '0.00'),
+            keyboardType: TextInputType.number,
+            maxLines: 1,
+            maxLength: 10,
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+            ],
+            enableInteractiveSelection: false,
+            validator: (import) =>
+                import.isEmpty || int.parse(import.replaceAll('.', '')) == 0 ? 'You need an import' : null,
+            onSaved: (import) => _import = double.parse(import.trim().replaceAll(',', '')),
+          ),
+          SizedBox(height: height * 0.02),
+          TextFormField(
+            controller: _initDate,
+            onTap: () async {
+              FocusScope.of(context).requestFocus(FocusNode());
+
+              DateTime picked = await showDatePicker(
+                locale: Locale('es'),
+                initialEntryMode: DatePickerEntryMode.calendar,
+                context: context,
+                initialDate: _date,
+                firstDate: DateTime(2020),
+                lastDate: DateTime(2025), //DateTime.now(),
+                helpText: 'Select expense date', // Can be used as title
+                cancelText: 'Cancel',
+                confirmText: 'Done',
+                fieldLabelText: 'Expense Date',
+                errorInvalidText: 'Invalid date',
+                fieldHintText: 'mm/dd/yyyy',
+                errorFormatText: 'Invalid format',
+                builder: (BuildContext context, Widget child) {
+                  return Theme(
+                    data: ThemeData(
+                      primaryColor: Colors.black87,
+                      accentColor: Colors.black87,
+                      colorScheme: ColorScheme(
+                        brightness: Brightness.light,
+                        primaryVariant: Colors.black87,
+                        secondaryVariant: Colors.black87,
+                        surface: Colors.black87,
+                        background: Colors.black87,
+                        error: Colors.red,
+                        onPrimary: Colors.white,
+                        onSecondary: Colors.black87,
+                        onError: Colors.red,
+                        onSurface: Colors.black87,
+                        primary: Colors.black87,
+                        secondary: Colors.black87,
+                        onBackground: Colors.black87,
+                      ),
+                    ),
+                    child: child,
+                  );
+                },
+              );
+              if (picked != null && picked != _date) {
+                setState(() {
+                  _date = picked;
+                  _initDate.text = DateFormat.yMd('es').format(picked);
+                });
+              }
+            },
+            maxLines: 1,
+            enableInteractiveSelection: false,
+            onSaved: (date) {
+              _date = DateFormat('dd/MM/yyyy').parse(date);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   void _submitAdd() {
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
-      context.read(expensesNotifierProvider).createExpense(_title, _description, _import,_date).then(
+      context.read(expensesNotifierProvider).createExpense(_title, _description, _import, _date).then(
         (value) {
           return Flushbar(
             message: 'Expense added',
@@ -436,6 +449,8 @@ class ExpenseTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
+    DateTime _today = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+
     return Consumer(builder: (context, watch, child) {
       final item = watch(_currentItem);
       return Padding(
@@ -502,7 +517,7 @@ class ExpenseTile extends StatelessWidget {
           child: Ink(
             width: double.infinity,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Colors.white, //item.date == _today ? Colors.black12 : Colors.white,
             ),
             padding: EdgeInsets.symmetric(
               vertical: height * 0.02,
@@ -517,19 +532,32 @@ class ExpenseTile extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      item.date == _today
+                          ? Text(
+                              'Today',
+                              style: TextStyle(color: Colors.green),
+                            )
+                          : Container(),
                       Text(
                         item.title,
                         style: Theme.of(context).textTheme.headline1,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      SizedBox(height: height * 0.015),
-                      Text(
-                        item.description,
-                        style: Theme.of(context).textTheme.bodyText2,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                      item.description.isNotEmpty
+                          ? Column(
+                              children: [
+                                SizedBox(height: height * 0.01),
+                                Text(
+                                  item.description,
+                                  style: Theme.of(context).textTheme.bodyText2,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            )
+                          : Container(),
+                      SizedBox(height: height * 0.01),
                       Text(
                         DateFormat.yMd('es').format(item.date),
                         style: Theme.of(context).textTheme.bodyText2,

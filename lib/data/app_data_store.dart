@@ -15,8 +15,8 @@ class AppDataStore implements DataStore {
 
   Future<List<Expense>> getAllExpenses() async {
     try {
-      //final sort = Finder(sortOrders: [SortOrder('title')]);
-      final expensesList = await _expensesStore.find(await _db);
+      final sortDate = Finder(sortOrders: [SortOrder('date',false)]);
+      final expensesList = await _expensesStore.find(await _db,finder: sortDate);
 
       if (expensesList.isNotEmpty) {
         return expensesList.map((item) {

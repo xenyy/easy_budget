@@ -116,7 +116,7 @@ class _EditScreenState extends State<EditScreen> {
                                 context: context,
                                 initialDate: DateFormat('dd/MM/yyyy').parse(_initDate.text),
                                 firstDate: DateTime(2020),
-                                lastDate: DateTime(2025),
+                                lastDate: DateTime(2025), //DateTime.now(),
                                 helpText: 'Select expense date', // Can be used as title
                                 cancelText: 'Cancel',
                                 confirmText: 'Done',
