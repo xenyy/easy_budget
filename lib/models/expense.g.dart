@@ -12,10 +12,10 @@ _$_Expense _$_$_ExpenseFromJson(Map<String, dynamic> json) {
     title: json['title'] as String,
     description: json['description'] as String,
     import: (json['import'] as num)?.toDouble(),
-    categories: (json['categories'] as List)
-        ?.map((e) =>
-            e == null ? null : Category.fromJson(e as Map<String, dynamic>))
-        ?.toList(),
+    date: json['date'] == null ? null : DateTime.parse(json['date'] as String),
+    category: json['category'] == null
+        ? null
+        : Category.fromJson(json['category'] as Map<String, dynamic>),
   );
 }
 
@@ -25,5 +25,6 @@ Map<String, dynamic> _$_$_ExpenseToJson(_$_Expense instance) =>
       'title': instance.title,
       'description': instance.description,
       'import': instance.import,
-      'categories': instance.categories,
+      'date': instance.date?.toIso8601String(),
+      'category': instance.category,
     };

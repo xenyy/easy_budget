@@ -1,17 +1,18 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:easy_budget/app/home/home.dart';
 import 'package:easy_budget/models/expense.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:easy_budget/app/app_common_widgets/back_button.dart';
 import 'package:easy_budget/state/app_state.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_masked_text/flutter_masked_text.dart';
+import 'package:intl/intl.dart';
 
 class EditScreen extends StatefulWidget {
   static const String routeName = '/edit';
 
-  final Expense expense;
-  const EditScreen({Key key, this.expense}) : super(key: key);
+  final Expense expenseItem;
+  const EditScreen({Key key, this.expenseItem}) : super(key: key);
 
   @override
   _EditScreenState createState() => _EditScreenState();
@@ -19,8 +20,16 @@ class EditScreen extends StatefulWidget {
 
 class _EditScreenState extends State<EditScreen> {
   final _formKey = GlobalKey<FormState>();
+  TextEditingController _initDate;
   String _title, _description;
   double _import;
+  DateTime _date;
+
+  @override
+  void initState() {
+    super.initState();
+    _initDate = TextEditingController(text: DateFormat.yMd('es').format(widget.expenseItem.date));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +46,8 @@ class _EditScreenState extends State<EditScreen> {
                 Icons.save,
                 color: Colors.white70,
               ),
-              onPressed: _submitEdit),
+              onPressed: _submitEdit,
+          ),
         ],
       ),
       body: Padding(
@@ -48,11 +58,6 @@ class _EditScreenState extends State<EditScreen> {
   }
 
   Form buildEditForm(double height) {
-    MoneyMaskedTextController _controller = MoneyMaskedTextController(
-      decimalSeparator: '.',
-      thousandSeparator: ',',
-      initialValue: widget.expense.import,
-    );
     return Form(
       key: _formKey,
       child: Consumer(
@@ -63,7 +68,7 @@ class _EditScreenState extends State<EditScreen> {
               return ListView(
                 physics: NeverScrollableScrollPhysics(),
                 children: [
-                  ...expense.where((element) => element.id == widget.expense.id).map(
+                  ...expense.where((element) => element.id == widget.expenseItem.id).map(
                     (item) {
                       return Column(
                         mainAxisSize: MainAxisSize.min,
@@ -89,13 +94,73 @@ class _EditScreenState extends State<EditScreen> {
                           ),
                           SizedBox(height: height * 0.02),
                           TextFormField(
-                            controller: _controller,
-                            keyboardType: TextInputType.number,
+                            initialValue: item.import.toString(),
+                            keyboardType: TextInputType.numberWithOptions(decimal: true),
                             maxLines: 1,
                             maxLength: 10,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+                            ],
                             enableInteractiveSelection: false,
                             validator: (import) => import == '0.00' ? 'You need an import' : null,
                             onSaved: (import) => _import = double.parse(import.trim().replaceAll(',', '')),
+                          ),
+                          TextFormField(
+                            controller: _initDate,
+                            onTap: () async {
+                              FocusScope.of(context).requestFocus(FocusNode());
+
+                              DateTime picked = await showDatePicker(
+                                locale: Locale('es'),
+                                initialEntryMode: DatePickerEntryMode.calendar,
+                                context: context,
+                                initialDate: DateFormat('dd/MM/yyyy').parse(_initDate.text),
+                                firstDate: DateTime(2020),
+                                lastDate: DateTime(2025),
+                                helpText: 'Select expense date', // Can be used as title
+                                cancelText: 'Cancel',
+                                confirmText: 'Done',
+                                fieldLabelText: 'Expense Date',
+                                errorInvalidText: 'Invalid date',
+                                fieldHintText: 'mm/dd/yyyy',
+                                errorFormatText: 'Invalid format',
+                                builder: (BuildContext context, Widget child) {
+                                  return Theme(
+                                    data: ThemeData(
+                                      primaryColor: Colors.black87,
+                                      accentColor: Colors.black87,
+                                      colorScheme: ColorScheme(
+                                        brightness: Brightness.light,
+                                        primaryVariant: Colors.black87,
+                                        secondaryVariant: Colors.black87,
+                                        surface: Colors.black87,
+                                        background: Colors.black87,
+                                        error: Colors.red,
+                                        onPrimary: Colors.white,
+                                        onSecondary: Colors.black87,
+                                        onError: Colors.red,
+                                        onSurface: Colors.black87,
+                                        primary: Colors.black87,
+                                        secondary: Colors.black87,
+                                        onBackground: Colors.black87,
+                                      ),
+                                    ),
+                                    child: child,
+                                  );
+                                },
+                              );
+                              if (picked != null && picked != _date){
+                                setState(() {
+                                  _date = picked;
+                                  _initDate.text = DateFormat.yMd('es').format(picked);
+                                });
+                              }
+                            },
+                            maxLines: 1,
+                            enableInteractiveSelection: false,
+                            onSaved: (date) {
+                              _date = DateFormat('dd/MM/yyyy').parse(date);
+                            },
                           ),
                         ],
                       );
@@ -141,7 +206,7 @@ class _EditScreenState extends State<EditScreen> {
   void _submitEdit() {
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
-      context.read(expensesNotifierProvider).editExpense(widget.expense.id, _title, _description, _import).then(
+      context.read(expensesNotifierProvider).editExpense(widget.expenseItem.id, _title, _description, _import, _date).then(
         (value) {
           return Flushbar(
             message: 'Expense edited',

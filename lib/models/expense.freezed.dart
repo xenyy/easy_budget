@@ -22,13 +22,15 @@ class _$ExpenseTearOff {
       @required String title,
       @required String description,
       @required double import,
-      List<Category> categories}) {
+      @required DateTime date,
+      Category category}) {
     return _Expense(
       id: id,
       title: title,
       description: description,
       import: import,
-      categories: categories,
+      date: date,
+      category: category,
     );
   }
 
@@ -48,7 +50,8 @@ mixin _$Expense {
   String get title;
   String get description;
   double get import;
-  List<Category> get categories;
+  DateTime get date;
+  Category get category;
 
   Map<String, dynamic> toJson();
   @JsonKey(ignore: true)
@@ -64,7 +67,10 @@ abstract class $ExpenseCopyWith<$Res> {
       String title,
       String description,
       double import,
-      List<Category> categories});
+      DateTime date,
+      Category category});
+
+  $CategoryCopyWith<$Res> get category;
 }
 
 /// @nodoc
@@ -81,7 +87,8 @@ class _$ExpenseCopyWithImpl<$Res> implements $ExpenseCopyWith<$Res> {
     Object title = freezed,
     Object description = freezed,
     Object import = freezed,
-    Object categories = freezed,
+    Object date = freezed,
+    Object category = freezed,
   }) {
     return _then(_value.copyWith(
       id: id == freezed ? _value.id : id as String,
@@ -89,10 +96,19 @@ class _$ExpenseCopyWithImpl<$Res> implements $ExpenseCopyWith<$Res> {
       description:
           description == freezed ? _value.description : description as String,
       import: import == freezed ? _value.import : import as double,
-      categories: categories == freezed
-          ? _value.categories
-          : categories as List<Category>,
+      date: date == freezed ? _value.date : date as DateTime,
+      category: category == freezed ? _value.category : category as Category,
     ));
+  }
+
+  @override
+  $CategoryCopyWith<$Res> get category {
+    if (_value.category == null) {
+      return null;
+    }
+    return $CategoryCopyWith<$Res>(_value.category, (value) {
+      return _then(_value.copyWith(category: value));
+    });
   }
 }
 
@@ -106,7 +122,11 @@ abstract class _$ExpenseCopyWith<$Res> implements $ExpenseCopyWith<$Res> {
       String title,
       String description,
       double import,
-      List<Category> categories});
+      DateTime date,
+      Category category});
+
+  @override
+  $CategoryCopyWith<$Res> get category;
 }
 
 /// @nodoc
@@ -124,7 +144,8 @@ class __$ExpenseCopyWithImpl<$Res> extends _$ExpenseCopyWithImpl<$Res>
     Object title = freezed,
     Object description = freezed,
     Object import = freezed,
-    Object categories = freezed,
+    Object date = freezed,
+    Object category = freezed,
   }) {
     return _then(_Expense(
       id: id == freezed ? _value.id : id as String,
@@ -132,9 +153,8 @@ class __$ExpenseCopyWithImpl<$Res> extends _$ExpenseCopyWithImpl<$Res>
       description:
           description == freezed ? _value.description : description as String,
       import: import == freezed ? _value.import : import as double,
-      categories: categories == freezed
-          ? _value.categories
-          : categories as List<Category>,
+      date: date == freezed ? _value.date : date as DateTime,
+      category: category == freezed ? _value.category : category as Category,
     ));
   }
 }
@@ -148,10 +168,12 @@ class _$_Expense implements _Expense {
       @required this.title,
       @required this.description,
       @required this.import,
-      this.categories})
+      @required this.date,
+      this.category})
       : assert(title != null),
         assert(description != null),
-        assert(import != null);
+        assert(import != null),
+        assert(date != null);
 
   factory _$_Expense.fromJson(Map<String, dynamic> json) =>
       _$_$_ExpenseFromJson(json);
@@ -165,11 +187,13 @@ class _$_Expense implements _Expense {
   @override
   final double import;
   @override
-  final List<Category> categories;
+  final DateTime date;
+  @override
+  final Category category;
 
   @override
   String toString() {
-    return 'Expense(id: $id, title: $title, description: $description, import: $import, categories: $categories)';
+    return 'Expense(id: $id, title: $title, description: $description, import: $import, date: $date, category: $category)';
   }
 
   @override
@@ -185,9 +209,11 @@ class _$_Expense implements _Expense {
                     .equals(other.description, description)) &&
             (identical(other.import, import) ||
                 const DeepCollectionEquality().equals(other.import, import)) &&
-            (identical(other.categories, categories) ||
+            (identical(other.date, date) ||
+                const DeepCollectionEquality().equals(other.date, date)) &&
+            (identical(other.category, category) ||
                 const DeepCollectionEquality()
-                    .equals(other.categories, categories)));
+                    .equals(other.category, category)));
   }
 
   @override
@@ -197,7 +223,8 @@ class _$_Expense implements _Expense {
       const DeepCollectionEquality().hash(title) ^
       const DeepCollectionEquality().hash(description) ^
       const DeepCollectionEquality().hash(import) ^
-      const DeepCollectionEquality().hash(categories);
+      const DeepCollectionEquality().hash(date) ^
+      const DeepCollectionEquality().hash(category);
 
   @JsonKey(ignore: true)
   @override
@@ -216,7 +243,8 @@ abstract class _Expense implements Expense {
       @required String title,
       @required String description,
       @required double import,
-      List<Category> categories}) = _$_Expense;
+      @required DateTime date,
+      Category category}) = _$_Expense;
 
   factory _Expense.fromJson(Map<String, dynamic> json) = _$_Expense.fromJson;
 
@@ -229,7 +257,9 @@ abstract class _Expense implements Expense {
   @override
   double get import;
   @override
-  List<Category> get categories;
+  DateTime get date;
+  @override
+  Category get category;
   @override
   @JsonKey(ignore: true)
   _$ExpenseCopyWith<_Expense> get copyWith;

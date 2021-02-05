@@ -14,15 +14,17 @@ abstract class Expense with _$Expense {
     @required String title,
     @required String description,
     @required double import,
-    List<Category> categories,
+    @required DateTime date,
+    Category category,
   }) = _Expense;
 
-  factory Expense.create(String title, String description, double import) {
+  factory Expense.create(String title, String description, double import,DateTime date) {
     return Expense(
       id: _uuid.v4(),
       title: title,
       description: description,
       import: import,
+      date : date,
     );
   }
 

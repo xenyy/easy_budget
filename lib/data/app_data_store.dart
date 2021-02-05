@@ -35,17 +35,15 @@ class AppDataStore implements DataStore {
   Future<void> addExpense(Expense expense) async {
     try {
       await _expensesStore.add(
-          await _db,
-          Expense.create(expense.title, expense.description, expense.import)
-              .toJson());
+          await _db, Expense.create(expense.title, expense.description, expense.import, expense.date).toJson());
     } catch (e) {
       throw ExpenseException(failure: const ExpensesFailure.addFailure());
     }
   }
 
-  Future<void> updateExpense(String id,String title, String description, double import) async {
+  Future<void> updateExpense(String id, String title, String description, double import, DateTime date) async {
     try {
-      final expense = Expense(id: id,title: title,description: description,import: import);
+      final expense = Expense(id: id, title: title, description: description, import: import, date: date);
       final findExpenseUpdate = Finder(filter: Filter.equal('id', expense.id));
       await _expensesStore.update(await _db, expense.toJson(), finder: findExpenseUpdate);
     } catch (e) {

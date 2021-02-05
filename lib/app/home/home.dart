@@ -6,7 +6,6 @@ import 'package:easy_budget/routing/app_router.dart';
 import 'package:easy_budget/state/app_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_masked_text/flutter_masked_text.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
@@ -23,6 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final _formKey = GlobalKey<FormState>();
   String _title, _description;
   double _import;
+  DateTime _date = DateTime.now();
 
   @override
   Widget build(BuildContext context) {
@@ -109,7 +109,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                         );
                                 },
                                 orElse: () {
-                                  return Container();
+                                  return Text(
+                                    formatCurrency(0.00) + ' €',
+                                    style: Theme.of(context).textTheme.headline2,
+                                  );
                                 },
                               );
                             },
@@ -228,7 +231,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _addExpenseBottomSheet(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
-    MoneyMaskedTextController _controller = MoneyMaskedTextController(decimalSeparator: '.', thousandSeparator: ',');
+    TextEditingController _initDate = TextEditingController(text: DateFormat.yMd('es').format(DateTime.now()));
 
     showModalBottomSheet(
       shape: RoundedRectangleBorder(
@@ -246,7 +249,7 @@ class _HomeScreenState extends State<HomeScreen> {
               vertical: height * 0.03,
               horizontal: width * 0.05,
             ),
-            height: height * 0.55,
+            //height: height * 0.55,
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -265,9 +268,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         TextFormField(
-                          decoration: InputDecoration(
-                            hintText: 'ex. Dog Food',
-                          ),
+                          decoration: InputDecoration(hintText: 'ex. Dog Food'),
                           maxLength: 35,
                           maxLengthEnforced: true,
                           maxLines: 1,
@@ -277,7 +278,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         SizedBox(height: height * 0.02),
                         TextFormField(
                           textAlignVertical: TextAlignVertical.top,
-                          decoration: InputDecoration(hintText: 'What is the expense about?'),
+                          decoration: InputDecoration(hintText: 'What was the expense for?'),
                           maxLength: 150,
                           maxLengthEnforced: true,
                           maxLines: 4,
@@ -285,13 +286,74 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         SizedBox(height: height * 0.02),
                         TextFormField(
-                          controller: _controller,
+                          decoration: InputDecoration(hintText: '0.00'),
                           keyboardType: TextInputType.number,
                           maxLines: 1,
                           maxLength: 10,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+                          ],
                           enableInteractiveSelection: false,
-                          validator: (import) => import == '0.00' ? 'You need an import' : null,
+                          validator: (import) => import.isEmpty || int.parse(import.replaceAll('.', '')) == 0 ? 'You need an import' : null,
                           onSaved: (import) => _import = double.parse(import.trim().replaceAll(',', '')),
+                        ),
+                        SizedBox(height: height * 0.02),
+                        TextFormField(
+                          controller: _initDate,
+                          onTap: () async {
+                            FocusScope.of(context).requestFocus(FocusNode());
+
+                            DateTime picked = await showDatePicker(
+                              locale: Locale('es'),
+                              initialEntryMode: DatePickerEntryMode.calendar,
+                              context: context,
+                              initialDate: _date,
+                              firstDate: DateTime(2020),
+                              lastDate: DateTime(2025),
+                              helpText: 'Select expense date', // Can be used as title
+                              cancelText: 'Cancel',
+                              confirmText: 'Done',
+                              fieldLabelText: 'Expense Date',
+                              errorInvalidText: 'Invalid date',
+                              fieldHintText: 'mm/dd/yyyy',
+                              errorFormatText: 'Invalid format',
+                              builder: (BuildContext context, Widget child) {
+                                return Theme(
+                                  data: ThemeData(
+                                    primaryColor: Colors.black87,
+                                    accentColor: Colors.black87,
+                                    colorScheme: ColorScheme(
+                                      brightness: Brightness.light,
+                                      primaryVariant: Colors.black87,
+                                      secondaryVariant: Colors.black87,
+                                      surface: Colors.black87,
+                                      background: Colors.black87,
+                                      error: Colors.red,
+                                      onPrimary: Colors.white,
+                                      onSecondary: Colors.black87,
+                                      onError: Colors.red,
+                                      onSurface: Colors.black87,
+                                      primary: Colors.black87,
+                                      secondary: Colors.black87,
+                                      onBackground: Colors.black87,
+                                    ),
+                                  ),
+                                  child: child,
+                                );
+                              },
+                            );
+                            if (picked != null && picked != _date){
+                              setState(() {
+                                _date = picked;
+                                _initDate.text = DateFormat.yMd('es').format(picked);
+                              });
+                            }
+                          },
+                          maxLines: 1,
+                          enableInteractiveSelection: false,
+                          onSaved: (date) {
+                           _date = DateFormat('dd/MM/yyyy').parse(date);
+                          },
                         ),
                       ],
                     ),
@@ -321,7 +383,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _submitAdd() {
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
-      context.read(expensesNotifierProvider).createExpense(_title, _description, _import).then(
+      context.read(expensesNotifierProvider).createExpense(_title, _description, _import,_date).then(
         (value) {
           return Flushbar(
             message: 'Expense added',
@@ -464,6 +526,12 @@ class ExpenseTile extends StatelessWidget {
                       SizedBox(height: height * 0.015),
                       Text(
                         item.description,
+                        style: Theme.of(context).textTheme.bodyText2,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        DateFormat.yMd('es').format(item.date),
                         style: Theme.of(context).textTheme.bodyText2,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,

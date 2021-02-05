@@ -22,11 +22,11 @@ class AppRouter {
         );
       case AppRoutes.details:
         return MaterialPageRoute<dynamic>(
-          builder: (_) => DetailsScreen(expense: args),
+          builder: (_) => DetailsScreen(expenseItem: args),
         );
       case AppRoutes.edit:
         return MaterialPageRoute<dynamic>(
-          builder: (_) => EditScreen(expense: args),
+          builder: (_) => EditScreen(expenseItem: args),
         );
       case AppRoutes.dashboard:
         return MaterialPageRoute<dynamic>(

@@ -40,13 +40,13 @@ class ExpensesStateNotifier extends StateNotifier<Expenses> {
     }
   }
 
-  Future<void> createExpense(String title, String description, double import) async {
+  Future<void> createExpense(String title, String description, double import, DateTime date) async {
     _cacheState();
 
     state.maybeWhen(
       data: (expense) {
         state = Expenses.data(
-          expense..add(Expense.create(title, description, import)),
+          expense..add(Expense.create(title, description, import,date)),
         );
       },
       orElse: () {},
@@ -59,6 +59,7 @@ class ExpensesStateNotifier extends StateNotifier<Expenses> {
           title: title,
           description: description,
           import: import,
+          date: date,
         ),
       );
     } on ExpenseException catch (e) {
@@ -67,7 +68,7 @@ class ExpensesStateNotifier extends StateNotifier<Expenses> {
     refresh(); //so when you delete the item doesnt reappear when pull to refresh
   }
 
-  Future<void> editExpense(String id,String title, String description, double import) async {
+  Future<void> editExpense(String id,String title, String description, double import, DateTime date) async {
     _cacheState();
 
     state.maybeWhen(
@@ -76,7 +77,7 @@ class ExpensesStateNotifier extends StateNotifier<Expenses> {
           [
             for (final item in expenses)
               if (item.id == id)
-                item.copyWith(title: title, description: description, import: import)
+                item.copyWith(title: title, description: description, import: import,date: date)
               else
                 item
           ],
@@ -86,7 +87,7 @@ class ExpensesStateNotifier extends StateNotifier<Expenses> {
     );
 
     try {
-      await read(expensesRepositoryProvider).updateExpense(id,title,description,import);
+      await read(expensesRepositoryProvider).updateExpense(id,title,description,import,date);
     } on ExpenseException catch (e) {
       return _handleException(e);
     }

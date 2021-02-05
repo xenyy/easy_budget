@@ -9,9 +9,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class DetailsScreen extends StatelessWidget {
   static const String routeName = '/details';
 
-  final Expense expense;
-  const DetailsScreen({Key key, this.expense}) : super(key: key);
-
+  final Expense expenseItem;
+  const DetailsScreen({Key key, this.expenseItem}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +29,7 @@ class DetailsScreen extends StatelessWidget {
               color: Colors.white70,
             ),
             onPressed: () {
-              Navigator.pushNamed(context, AppRoutes.edit,arguments: expense);
+              Navigator.pushNamed(context, AppRoutes.edit,arguments: expenseItem);
             },
           ),
         ],
@@ -48,7 +47,7 @@ class DetailsScreen extends StatelessWidget {
                 return ListView(
                   physics: NeverScrollableScrollPhysics(),
                   children: [
-                    ...expenses.where((element) => element.id == expense.id).map(
+                    ...expenses.where((element) => element.id == expenseItem.id).map(
                       (item) {
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
