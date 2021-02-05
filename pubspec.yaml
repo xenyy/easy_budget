@@ -31,8 +31,8 @@ dependencies:
   sembast: ^1.15.1
   uuid: ^2.2.2
   flutter_riverpod: ^0.12.3
-  flutter_masked_text: ^0.8.0
   another_flushbar: ^1.10.8
+  grouped_list: ^3.7.1
   intl: 0.17.0-nullsafety.2
 
 dev_dependencies:

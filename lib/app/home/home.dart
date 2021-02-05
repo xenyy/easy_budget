@@ -7,6 +7,7 @@ import 'package:easy_budget/state/app_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:grouped_list/grouped_list.dart';
 import 'package:intl/intl.dart';
 
 final _currentItem = ScopedProvider<Expense>(null);
@@ -85,6 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
           body: Builder(
             builder: (BuildContext context) {
               final height = MediaQuery.of(context).size.height;
+              final width = MediaQuery.of(context).size.width;
               return RefreshIndicator(
                 color: Colors.black54,
                 onRefresh: () async {
@@ -97,7 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
                     ),
                     SliverToBoxAdapter(
-                      child: buildExpensesList(height),
+                      child: buildExpensesList(height, width),
                     ),
                   ],
                 ),
@@ -111,72 +113,83 @@ class _HomeScreenState extends State<HomeScreen> {
 
   FlexibleSpaceBar buildFlexibleSpace(BuildContext context, double height) {
     return FlexibleSpaceBar(
-                  background: Container(
-                    padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-                    color: Colors.black12,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Total Expenses',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 27,
-                          ),
-                        ),
-                        SizedBox(height: height * 0.02),
-                        Consumer(
-                          builder: (context, watch, child) {
-                            final totalExpenses = watch(expensesNotifierProvider.state);
-                            return totalExpenses.maybeWhen(
-                              data: (item) {
-                                return item.isNotEmpty
-                                    ? Text(
-                                        formatCurrency(item.map((e) => e.import).reduce((a, b) => a + b)) + ' €',
-                                        style: Theme.of(context).textTheme.headline2,
-                                      )
-                                    : Text(
-                                        formatCurrency(0.00) + ' €',
-                                        style: Theme.of(context).textTheme.headline2,
-                                      );
-                              },
-                              orElse: () {
-                                return Text(
-                                  formatCurrency(0.00) + ' €',
-                                  style: Theme.of(context).textTheme.headline2,
-                                );
-                              },
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
+      background: Container(
+        padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+        color: Colors.black12,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              'Total Expenses',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 27,
+              ),
+            ),
+            SizedBox(height: height * 0.02),
+            Consumer(
+              builder: (context, watch, child) {
+                final totalExpenses = watch(expensesNotifierProvider.state);
+                return totalExpenses.maybeWhen(
+                  data: (item) {
+                    return item.isNotEmpty
+                        ? Text(
+                            formatCurrency(item.map((e) => e.import).reduce((a, b) => a + b)) + ' €',
+                            style: Theme.of(context).textTheme.headline2,
+                          )
+                        : Text(
+                            formatCurrency(0.00) + ' €',
+                            style: Theme.of(context).textTheme.headline2,
+                          );
+                  },
+                  orElse: () {
+                    return Text(
+                      formatCurrency(0.00) + ' €',
+                      style: Theme.of(context).textTheme.headline2,
+                    );
+                  },
                 );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
-  Widget buildExpensesList(double height) {
+  Widget buildExpensesList(double height, double width) {
     return Consumer(
       builder: (context, watch, child) {
         final expensesState = watch(expensesNotifierProvider.state);
         return expensesState.when(
-          data: (item) {
-            return item.isNotEmpty
-                ? ListView(
-                    physics: NeverScrollableScrollPhysics(),
-                    padding: EdgeInsets.only(bottom: height * 0.03),
+          data: (items) {
+            return items.isNotEmpty
+                ? GroupedListView<dynamic, DateTime>(
+                    padding: EdgeInsets.zero,
                     shrinkWrap: true,
-                    children: [
-                      ...item
-                          .map(
-                            (item) => ProviderScope(
-                              overrides: [_currentItem.overrideWithValue(item)],
-                              child: const ExpenseTile(),
-                            ),
-                          )
-                          .toList()
-                    ],
+                    elements: items,
+                    groupBy: (items) {
+                      return items.date;
+                    },
+                    groupSeparatorBuilder: (DateTime date) {
+                      return Padding(
+                        padding: EdgeInsets.only(
+                          left: width * 0.03,
+                          top: height * 0.02,
+                          bottom: height * 0.01,
+                        ),
+                        child: Text(
+                          DateFormat.yMd('es').format(date),
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                      );
+                    },
+                    order: GroupedListOrder.ASC,
+                    itemBuilder: (context, dynamic item) => ProviderScope(
+                      overrides: [_currentItem.overrideWithValue(item)],
+                      child: const ExpenseTile(),
+                    ),
                   )
                 : Center(
                     heightFactor: height / 30,
