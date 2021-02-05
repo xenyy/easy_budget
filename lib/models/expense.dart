@@ -1,3 +1,4 @@
+import 'package:easy_budget/models/category.dart';
 import 'package:uuid/uuid.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -13,6 +14,7 @@ abstract class Expense with _$Expense {
     @required String title,
     @required String description,
     @required double import,
+    List<Category> categories,
   }) = _Expense;
 
   factory Expense.create(String title, String description, double import) {

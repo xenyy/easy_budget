@@ -14,6 +14,7 @@ I'm new at flutter but I think the code is kinda well written and organized be f
 
 - Add dashboard.
 - Add select date when adding expense.
+- Add expenses categories
 - Order home depending on date.
 - Add settings (dark theme,language (prob currency)).
 - Add functionality to create max budget and compare to total expenses

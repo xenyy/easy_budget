@@ -21,12 +21,14 @@ class _$ExpenseTearOff {
       {String id,
       @required String title,
       @required String description,
-      @required double import}) {
+      @required double import,
+      List<Category> categories}) {
     return _Expense(
       id: id,
       title: title,
       description: description,
       import: import,
+      categories: categories,
     );
   }
 
@@ -46,6 +48,7 @@ mixin _$Expense {
   String get title;
   String get description;
   double get import;
+  List<Category> get categories;
 
   Map<String, dynamic> toJson();
   @JsonKey(ignore: true)
@@ -56,7 +59,12 @@ mixin _$Expense {
 abstract class $ExpenseCopyWith<$Res> {
   factory $ExpenseCopyWith(Expense value, $Res Function(Expense) then) =
       _$ExpenseCopyWithImpl<$Res>;
-  $Res call({String id, String title, String description, double import});
+  $Res call(
+      {String id,
+      String title,
+      String description,
+      double import,
+      List<Category> categories});
 }
 
 /// @nodoc
@@ -73,6 +81,7 @@ class _$ExpenseCopyWithImpl<$Res> implements $ExpenseCopyWith<$Res> {
     Object title = freezed,
     Object description = freezed,
     Object import = freezed,
+    Object categories = freezed,
   }) {
     return _then(_value.copyWith(
       id: id == freezed ? _value.id : id as String,
@@ -80,6 +89,9 @@ class _$ExpenseCopyWithImpl<$Res> implements $ExpenseCopyWith<$Res> {
       description:
           description == freezed ? _value.description : description as String,
       import: import == freezed ? _value.import : import as double,
+      categories: categories == freezed
+          ? _value.categories
+          : categories as List<Category>,
     ));
   }
 }
@@ -89,7 +101,12 @@ abstract class _$ExpenseCopyWith<$Res> implements $ExpenseCopyWith<$Res> {
   factory _$ExpenseCopyWith(_Expense value, $Res Function(_Expense) then) =
       __$ExpenseCopyWithImpl<$Res>;
   @override
-  $Res call({String id, String title, String description, double import});
+  $Res call(
+      {String id,
+      String title,
+      String description,
+      double import,
+      List<Category> categories});
 }
 
 /// @nodoc
@@ -107,6 +124,7 @@ class __$ExpenseCopyWithImpl<$Res> extends _$ExpenseCopyWithImpl<$Res>
     Object title = freezed,
     Object description = freezed,
     Object import = freezed,
+    Object categories = freezed,
   }) {
     return _then(_Expense(
       id: id == freezed ? _value.id : id as String,
@@ -114,6 +132,9 @@ class __$ExpenseCopyWithImpl<$Res> extends _$ExpenseCopyWithImpl<$Res>
       description:
           description == freezed ? _value.description : description as String,
       import: import == freezed ? _value.import : import as double,
+      categories: categories == freezed
+          ? _value.categories
+          : categories as List<Category>,
     ));
   }
 }
@@ -126,7 +147,8 @@ class _$_Expense implements _Expense {
       {this.id,
       @required this.title,
       @required this.description,
-      @required this.import})
+      @required this.import,
+      this.categories})
       : assert(title != null),
         assert(description != null),
         assert(import != null);
@@ -142,10 +164,12 @@ class _$_Expense implements _Expense {
   final String description;
   @override
   final double import;
+  @override
+  final List<Category> categories;
 
   @override
   String toString() {
-    return 'Expense(id: $id, title: $title, description: $description, import: $import)';
+    return 'Expense(id: $id, title: $title, description: $description, import: $import, categories: $categories)';
   }
 
   @override
@@ -160,7 +184,10 @@ class _$_Expense implements _Expense {
                 const DeepCollectionEquality()
                     .equals(other.description, description)) &&
             (identical(other.import, import) ||
-                const DeepCollectionEquality().equals(other.import, import)));
+                const DeepCollectionEquality().equals(other.import, import)) &&
+            (identical(other.categories, categories) ||
+                const DeepCollectionEquality()
+                    .equals(other.categories, categories)));
   }
 
   @override
@@ -169,7 +196,8 @@ class _$_Expense implements _Expense {
       const DeepCollectionEquality().hash(id) ^
       const DeepCollectionEquality().hash(title) ^
       const DeepCollectionEquality().hash(description) ^
-      const DeepCollectionEquality().hash(import);
+      const DeepCollectionEquality().hash(import) ^
+      const DeepCollectionEquality().hash(categories);
 
   @JsonKey(ignore: true)
   @override
@@ -187,7 +215,8 @@ abstract class _Expense implements Expense {
       {String id,
       @required String title,
       @required String description,
-      @required double import}) = _$_Expense;
+      @required double import,
+      List<Category> categories}) = _$_Expense;
 
   factory _Expense.fromJson(Map<String, dynamic> json) = _$_Expense.fromJson;
 
@@ -199,6 +228,8 @@ abstract class _Expense implements Expense {
   String get description;
   @override
   double get import;
+  @override
+  List<Category> get categories;
   @override
   @JsonKey(ignore: true)
   _$ExpenseCopyWith<_Expense> get copyWith;

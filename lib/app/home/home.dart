@@ -72,7 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           color: Colors.white70,
                         ),
                         onPressed: () {
-                          // Todo nav to dashboardScreen
+                          Navigator.pushNamed(context, AppRoutes.dashboard);
                         },
                       ),
                     ),
