@@ -19,6 +19,10 @@ I'm new at flutter but I think the code is kinda well written and organized be f
 - Redesign home with different lists divided with dates (like grouped lists or something)
 - Add settings (dark theme,language (prob currency)).
 - Add functionality to create max budget and compare to total expenses
+- Add app video demo
+
+## Hello there
+<a href="https://www.buymeacoffee.com/xeny" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
 
 ## Images
 
@@ -29,5 +33,4 @@ I'm new at flutter but I think the code is kinda well written and organized be f
 ![screenshot_3](/assets/images/screenshot_3.png)
 
 ![screenshot_4](/assets/images/screenshot_4.png)
-
 
