@@ -12,14 +12,14 @@ I'm new at flutter but I think the code is kinda well written and organized be f
 
 ## Todo's
 
-- Add dashboard.
-- ~~Add select date when adding expense.~~
-- Add expenses categories
-- ~~Order home depending on date.~~
-- Redesign home with different lists divided with dates (like grouped lists or something)
-- Add settings (dark theme,language (prob currency)).
-- Add functionality to create max budget and compare to total expenses
-- Add app video demo
+- [ ] Add dashboard.
+- [x] Add select date when adding expense.
+- [ ] Add expenses categories
+- [x] Order home depending on date.
+- [x] Redesign home with different lists divided with dates (like grouped lists or something)
+- [ ] Add settings (dark theme,language (prob currency)).
+- [ ] Add functionality to create max budget and compare to total expenses
+- [ ] Add app video demo
 
 ## Hello there
 <a href="https://www.buymeacoffee.com/xeny" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
