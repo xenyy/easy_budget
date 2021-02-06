@@ -1,6 +1,7 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:easy_budget/app_config/constant.dart';
 import 'package:easy_budget/data/exceptions.dart';
+import 'package:easy_budget/models/category.dart';
 import 'package:easy_budget/models/expense.dart';
 import 'package:easy_budget/routing/app_router.dart';
 import 'package:easy_budget/state/app_state.dart';
@@ -32,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: buildFloatingAddButton(context),
       drawer: Drawer(),
       body: ProviderListener(
-        provider: exceptionProvider,
+        provider: exceptionExpensesProvider,
         onChange: (
           BuildContext context,
           StateController<ExpenseException> exception,
@@ -185,7 +186,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       );
                     },
-                    order: GroupedListOrder.ASC,
+                    order: GroupedListOrder.DESC,
                     itemBuilder: (context, dynamic item) => ProviderScope(
                       overrides: [_currentItem.overrideWithValue(item)],
                       child: const ExpenseTile(),
@@ -283,6 +284,18 @@ class _HomeScreenState extends State<HomeScreen> {
                   SizedBox(height: height * 0.02),
                   buildAddForm(height, _initDate, context),
                   SizedBox(height: height * 0.03),
+                  Consumer(builder: (context, watch, child) {
+                    final categoriesState = watch(categoriesNotifierProvider.state);
+                    return categoriesState.maybeWhen(
+                      data: (items) => Wrap(
+                        children: [
+                          ...items.map((item) => ExpenseCategory(item: item)),
+                        ],
+                      ),
+                      orElse: () => Container(),
+                    );
+                  }),
+                  SizedBox(height: height * 0.03),
                   FlatButton(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
@@ -361,7 +374,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 confirmText: 'Done',
                 fieldLabelText: 'Expense Date',
                 errorInvalidText: 'Invalid date',
-                fieldHintText: 'mm/dd/yyyy',
+                fieldHintText: 'dd/mm/yyyy',
                 errorFormatText: 'Invalid format',
                 builder: (BuildContext context, Widget child) {
                   return Theme(
@@ -432,6 +445,37 @@ class _HomeScreenState extends State<HomeScreen> {
       );
       Navigator.pop(context);
     }
+  }
+}
+
+class ExpenseCategory extends StatelessWidget {
+  const ExpenseCategory({
+    Key key,
+    this.item,
+  }) : super(key: key);
+
+  final Category item;
+
+  @override
+  Widget build(BuildContext context) {
+    final height = MediaQuery.of(context).size.height;
+    final width = MediaQuery.of(context).size.width;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.black87,
+        borderRadius: BorderRadius.circular(15),
+      ),
+      padding: EdgeInsets.symmetric(
+        vertical: height / 120,
+        horizontal: width * 0.03,
+      ),
+      margin: EdgeInsets.symmetric(
+        vertical: height / 200,
+        horizontal: width * 0.01,
+      ),
+      child: Text(item.name,style: TextStyle(color: Colors.white),),
+    );
   }
 }
 

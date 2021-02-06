@@ -1,22 +1,34 @@
 import 'package:easy_budget/data/app_db.dart';
 import 'package:easy_budget/data/data_store.dart';
 import 'package:easy_budget/data/exceptions.dart';
+import 'package:easy_budget/models/category.dart';
 import 'package:easy_budget/models/expense.dart';
 import 'package:sembast/sembast.dart';
+import 'package:uuid/uuid.dart';
+
+
+const List<Category> defaultCategories = [
+  Category(id: '1',name: 'food'),
+  Category(id: '2',name:'treat'),
+  Category(id: '3',name:'clothes'),
+  Category(id: '4',name:'entertainment'),
+];
+
+bool addedDefaultCat = false;
 
 class AppDataStore implements DataStore {
   static const String EXPENSES_STORE_NAME = 'expenses';
-  //static const String LIMIT_STORE_NAME = 'limit';
+  static const String CATEGORIES_STORE_NAME = 'categories';
 
   final _expensesStore = intMapStoreFactory.store(EXPENSES_STORE_NAME);
-  //final _limitStore = intMapStoreFactory.store(LIMIT_STORE_NAME);
+  final _categoriesStore = intMapStoreFactory.store(CATEGORIES_STORE_NAME);
 
   Future<Database> get _db async => await AppDatabase.instance.database;
 
   Future<List<Expense>> getAllExpenses() async {
     try {
-      final sortDate = Finder(sortOrders: [SortOrder('date',false)]);
-      final expensesList = await _expensesStore.find(await _db,finder: sortDate);
+      final sortDate = Finder(sortOrders: [SortOrder('date', false)]);
+      final expensesList = await _expensesStore.find(await _db, finder: sortDate);
 
       if (expensesList.isNotEmpty) {
         return expensesList.map((item) {
@@ -28,7 +40,7 @@ class AppDataStore implements DataStore {
         return [];
       }
     } catch (e) {
-      throw ExpenseException(failure: const ExpensesFailure.getFailure());
+      throw ExpenseException(failure: const ExpensesFailure.getExpenseFailure());
     }
   }
 
@@ -37,7 +49,7 @@ class AppDataStore implements DataStore {
       await _expensesStore.add(
           await _db, Expense.create(expense.title, expense.description, expense.import, expense.date).toJson());
     } catch (e) {
-      throw ExpenseException(failure: const ExpensesFailure.addFailure());
+      throw ExpenseException(failure: const ExpensesFailure.addExpenseFailure());
     }
   }
 
@@ -48,7 +60,7 @@ class AppDataStore implements DataStore {
       await _expensesStore.update(await _db, expense.toJson(), finder: findExpenseUpdate);
     } catch (e) {
       print(e);
-      throw ExpenseException(failure: const ExpensesFailure.editFailure());
+      throw ExpenseException(failure: const ExpensesFailure.editExpenseFailure());
     }
   }
 
@@ -60,11 +72,38 @@ class AppDataStore implements DataStore {
       //final expensesList = await _expensesStore.find(await _db);
       //print(expensesList.length.toString() + 'from after delete');
     } catch (e) {
-      throw ExpenseException(failure: const ExpensesFailure.removeFailure());
+      throw ExpenseException(failure: const ExpensesFailure.removeExpenseFailure());
     }
   }
 
-  //Future<void> addLimit() async {}
+  Future<List<Category>> getAllCategories() async {
+    if(!addedDefaultCat){
+      _categoriesStore.addAll(await _db, defaultCategories.map((e) => e.toJson()).toList());
+      addedDefaultCat = true;
+    }
+
+    try {
+      final categoryList = await _categoriesStore.find(await _db);
+
+      if (categoryList.isNotEmpty) {
+        return categoryList.map((item) {
+          final category = Category.fromJson(item.value);
+          return category;
+        }).toList();
+      } else {
+        return [...defaultCategories];
+      }
+    } catch (e) {
+      throw CategoryException(failure: const CategoryFailure.getCategoryFailure());
+    }
+  }
+
+  Future<void> addCategory (Category category) async {}
+  Future<void> updateCategory (Category category) async {}
+  Future<void> removeCategory (Category category) async {}
+
+
+//Future<void> addLimit() async {}
   //Future<void> updateLimit() async {}
   //Future<void> deleteLimit() async {}
 

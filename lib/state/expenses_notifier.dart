@@ -12,9 +12,9 @@ class ExpensesStateNotifier extends StateNotifier<Expenses> {
   Expenses previousState;
 
   Future<void> _getAllExpenses() async {
-    await Future.delayed(Duration(seconds: 2));
+    //await Future.delayed(Duration(seconds: 2));
     try {
-      final expenses = await read(expensesRepositoryProvider).getAllExpenses();
+      final expenses = await read(repositoryProvider).getAllExpenses();
       state = Expenses.data(expenses);
     } on ExpenseException catch (e, st) {
       state = Expenses.onError(e, st);
@@ -24,7 +24,7 @@ class ExpensesStateNotifier extends StateNotifier<Expenses> {
   Future<void> retryGettingList() async {
     state = const Expenses.loading();
     try {
-      final expenses = await read(expensesRepositoryProvider).getAllExpenses();
+      final expenses = await read(repositoryProvider).getAllExpenses();
       state = Expenses.data(expenses);
     } on ExpenseException catch (e, st) {
       state = Expenses.onError(e, st);
@@ -33,7 +33,7 @@ class ExpensesStateNotifier extends StateNotifier<Expenses> {
 
   Future<void> refresh() async {
     try {
-      final expenses = await read(expensesRepositoryProvider).getAllExpenses();
+      final expenses = await read(repositoryProvider).getAllExpenses();
       state = Expenses.data(expenses);
     } on ExpenseException catch (e, st) {
       state = Expenses.onError(e, st);
@@ -53,7 +53,7 @@ class ExpensesStateNotifier extends StateNotifier<Expenses> {
     );
 
     try {
-      await read(expensesRepositoryProvider).addExpense(
+      await read(repositoryProvider).addExpense(
         Expense(
           id: null /*assign the id later*/,
           title: title,
@@ -87,7 +87,7 @@ class ExpensesStateNotifier extends StateNotifier<Expenses> {
     );
 
     try {
-      await read(expensesRepositoryProvider).updateExpense(id,title,description,import,date);
+      await read(repositoryProvider).updateExpense(id,title,description,import,date);
     } on ExpenseException catch (e) {
       return _handleException(e);
     }
@@ -107,7 +107,7 @@ class ExpensesStateNotifier extends StateNotifier<Expenses> {
       orElse: () {},
     );
     try {
-      await read(expensesRepositoryProvider).deleteExpense(expense);
+      await read(repositoryProvider).deleteExpense(expense);
     } on ExpenseException catch (e) {
       return _handleException(e);
     }
@@ -126,6 +126,6 @@ class ExpensesStateNotifier extends StateNotifier<Expenses> {
 
   void _handleException(ExpenseException e) {
     _resetState();
-    read(exceptionProvider).state = e;
+    read(exceptionExpensesProvider).state = e;
   }
 }
