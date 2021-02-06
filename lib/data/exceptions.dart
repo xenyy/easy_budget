@@ -1,4 +1,3 @@
-import 'package:easy_budget/models/category.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 part 'exceptions.freezed.dart';
 

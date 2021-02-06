@@ -1,10 +1,11 @@
+import 'dart:convert';
+
 import 'package:easy_budget/data/app_db.dart';
 import 'package:easy_budget/data/data_store.dart';
 import 'package:easy_budget/data/exceptions.dart';
 import 'package:easy_budget/models/category.dart';
 import 'package:easy_budget/models/expense.dart';
 import 'package:sembast/sembast.dart';
-import 'package:uuid/uuid.dart';
 
 
 const List<Category> defaultCategories = [
@@ -13,8 +14,6 @@ const List<Category> defaultCategories = [
   Category(id: '3',name:'clothes'),
   Category(id: '4',name:'entertainment'),
 ];
-
-bool addedDefaultCat = false;
 
 class AppDataStore implements DataStore {
   static const String EXPENSES_STORE_NAME = 'expenses';
@@ -45,10 +44,13 @@ class AppDataStore implements DataStore {
   }
 
   Future<void> addExpense(Expense expense) async {
+
     try {
-      await _expensesStore.add(
-          await _db, Expense.create(expense.title, expense.description, expense.import, expense.date).toJson());
+      print('hey');
+      await _expensesStore.add(await _db, Expense.create(expense.title, expense.description, expense.import, expense.date, expense.categories).toJson());
+
     } catch (e) {
+      print(e);
       throw ExpenseException(failure: const ExpensesFailure.addExpenseFailure());
     }
   }
@@ -59,7 +61,6 @@ class AppDataStore implements DataStore {
       final findExpenseUpdate = Finder(filter: Filter.equal('id', expense.id));
       await _expensesStore.update(await _db, expense.toJson(), finder: findExpenseUpdate);
     } catch (e) {
-      print(e);
       throw ExpenseException(failure: const ExpensesFailure.editExpenseFailure());
     }
   }
@@ -77,13 +78,12 @@ class AppDataStore implements DataStore {
   }
 
   Future<List<Category>> getAllCategories() async {
-    if(!addedDefaultCat){
-      _categoriesStore.addAll(await _db, defaultCategories.map((e) => e.toJson()).toList());
-      addedDefaultCat = true;
-    }
-
     try {
       final categoryList = await _categoriesStore.find(await _db);
+
+      if(categoryList.isEmpty){
+        _categoriesStore.addAll(await _db, defaultCategories.map((e) => e.toJson()).toList());
+      }
 
       if (categoryList.isNotEmpty) {
         return categoryList.map((item) {

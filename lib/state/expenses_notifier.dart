@@ -1,5 +1,6 @@
 import 'package:easy_budget/data/exceptions.dart';
 import 'package:easy_budget/models/app_state_model/expenses_state.dart';
+import 'package:easy_budget/models/category.dart';
 import 'package:easy_budget/models/expense.dart';
 import 'package:easy_budget/state/app_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -40,13 +41,17 @@ class ExpensesStateNotifier extends StateNotifier<Expenses> {
     }
   }
 
-  Future<void> createExpense(String title, String description, double import, DateTime date) async {
+  Future<void> createExpense(
+      String title, String description, double import, DateTime date, List<dynamic> categories) async {
     _cacheState();
 
     state.maybeWhen(
       data: (expense) {
         state = Expenses.data(
-          expense..add(Expense.create(title, description, import,date)),
+          expense
+            ..add(
+              Expense.create(title, description, import, date, categories),
+            ),
         );
       },
       orElse: () {},
@@ -60,15 +65,17 @@ class ExpensesStateNotifier extends StateNotifier<Expenses> {
           description: description,
           import: import,
           date: date,
+          categories: categories,
         ),
       );
     } on ExpenseException catch (e) {
+      print(e);
       return _handleException(e);
     }
     refresh(); //so when you delete the item doesnt reappear when pull to refresh
   }
 
-  Future<void> editExpense(String id,String title, String description, double import, DateTime date) async {
+  Future<void> editExpense(String id, String title, String description, double import, DateTime date) async {
     _cacheState();
 
     state.maybeWhen(
@@ -77,7 +84,7 @@ class ExpensesStateNotifier extends StateNotifier<Expenses> {
           [
             for (final item in expenses)
               if (item.id == id)
-                item.copyWith(title: title, description: description, import: import,date: date)
+                item.copyWith(title: title, description: description, import: import, date: date)
               else
                 item
           ],
@@ -87,7 +94,7 @@ class ExpensesStateNotifier extends StateNotifier<Expenses> {
     );
 
     try {
-      await read(repositoryProvider).updateExpense(id,title,description,import,date);
+      await read(repositoryProvider).updateExpense(id, title, description, import, date);
     } on ExpenseException catch (e) {
       return _handleException(e);
     }

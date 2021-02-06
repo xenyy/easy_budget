@@ -14,9 +14,9 @@ abstract class Category with _$Category {
     //@required int color,
   }) = _Category;
 
-  factory Category.create(String name, int color) {
+  factory Category.create(String name,String id, int color) {
     return Category(
-      id: _uuid.v4(),
+      id: id,
       name: name,
       //color: color,
     );

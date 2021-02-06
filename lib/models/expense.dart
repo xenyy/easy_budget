@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:easy_budget/models/category.dart';
 import 'package:uuid/uuid.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -15,16 +17,17 @@ abstract class Expense with _$Expense {
     @required String description,
     @required double import,
     @required DateTime date,
-    Category category,
+    @Default([]) List<dynamic> categories,
   }) = _Expense;
 
-  factory Expense.create(String title, String description, double import,DateTime date) {
+  factory Expense.create(String title, String description, double import,DateTime date,List<dynamic> categories) {
     return Expense(
       id: _uuid.v4(),
       title: title,
       description: description,
       import: import,
       date : date,
+      categories: categories.map((cat) => cat.toJson()).toList(),
     );
   }
 

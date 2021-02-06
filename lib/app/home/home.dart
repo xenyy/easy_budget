@@ -25,6 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String _title, _description;
   double _import;
   DateTime _date = DateTime.now();
+  List<dynamic> _categories = [];
 
   @override
   Widget build(BuildContext context) {
@@ -284,17 +285,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   SizedBox(height: height * 0.02),
                   buildAddForm(height, _initDate, context),
                   SizedBox(height: height * 0.03),
-                  Consumer(builder: (context, watch, child) {
-                    final categoriesState = watch(categoriesNotifierProvider.state);
-                    return categoriesState.maybeWhen(
-                      data: (items) => Wrap(
-                        children: [
-                          ...items.map((item) => ExpenseCategory(item: item)),
-                        ],
-                      ),
-                      orElse: () => Container(),
-                    );
-                  }),
+                  CategorySelector(categories: _categories),
                   SizedBox(height: height * 0.03),
                   FlatButton(
                     shape: RoundedRectangleBorder(
@@ -422,8 +413,9 @@ class _HomeScreenState extends State<HomeScreen> {
   void _submitAdd() {
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
-      context.read(expensesNotifierProvider).createExpense(_title, _description, _import, _date).then(
+      context.read(expensesNotifierProvider).createExpense(_title, _description, _import, _date, _categories).then(
         (value) {
+          _categories.clear();
           return Flushbar(
             message: 'Expense added',
             //backgroundColor: Theme.of(context).colorScheme.background.withOpacity(0.5),
@@ -448,33 +440,67 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class ExpenseCategory extends StatelessWidget {
-  const ExpenseCategory({
-    Key key,
-    this.item,
-  }) : super(key: key);
+class CategorySelector extends StatefulWidget {
+  const CategorySelector({Key key, this.categories}) : super(key: key);
 
-  final Category item;
+  final List<dynamic> categories;
+
+  @override
+  _CategorySelectorState createState() => _CategorySelectorState();
+}
+
+class _CategorySelectorState extends State<CategorySelector> {
+  bool _selectedCat = false;
 
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.black87,
-        borderRadius: BorderRadius.circular(15),
-      ),
-      padding: EdgeInsets.symmetric(
-        vertical: height / 120,
-        horizontal: width * 0.03,
-      ),
-      margin: EdgeInsets.symmetric(
-        vertical: height / 200,
-        horizontal: width * 0.01,
-      ),
-      child: Text(item.name,style: TextStyle(color: Colors.white),),
+    return Consumer(
+      builder: (context, watch, child) {
+        final categoriesState = watch(categoriesNotifierProvider.state);
+        return categoriesState.maybeWhen(
+          data: (items) => Wrap(
+            children: [
+              ...items.map((item) => GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _selectedCat = true;
+                      });
+                      if (!_selectedCat || widget.categories.contains(item)) {
+                        widget.categories.remove(item);
+                      } else {
+                        widget.categories.add(item);
+                      }
+                      setState(() {
+                        _selectedCat = false;
+                      });
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: widget.categories.contains(item) ? Colors.black87 : Colors.black54,
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      padding: EdgeInsets.symmetric(
+                        vertical: height / 120,
+                        horizontal: width * 0.03,
+                      ),
+                      margin: EdgeInsets.symmetric(
+                        vertical: height / 200,
+                        horizontal: width * 0.01,
+                      ),
+                      child: Text(
+                        item.name,
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  )),
+            ],
+          ),
+          orElse: () => Container(),
+        );
+      },
     );
   }
 }
@@ -498,9 +524,7 @@ class LoadingIndicator extends StatelessWidget {
 }
 
 class ExpenseTile extends StatelessWidget {
-  const ExpenseTile({Key key, this.item}) : super(key: key);
-
-  final Expense item;
+  const ExpenseTile({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -580,56 +604,88 @@ class ExpenseTile extends StatelessWidget {
               vertical: height * 0.02,
               horizontal: width * 0.05,
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      item.date == _today
-                          ? Text(
-                              'Today',
-                              style: TextStyle(color: Colors.green),
-                            )
-                          : Container(),
-                      Text(
-                        item.title,
-                        style: Theme.of(context).textTheme.headline1,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          item.date == _today
+                              ? Text(
+                                  'Today',
+                                  style: TextStyle(color: Colors.green),
+                                )
+                              : Container(),
+                          Text(
+                            item.title,
+                            style: Theme.of(context).textTheme.headline1,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          item.description.isNotEmpty
+                              ? Column(
+                                  children: [
+                                    SizedBox(height: height * 0.01),
+                                    Text(
+                                      item.description,
+                                      style: Theme.of(context).textTheme.bodyText2,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                )
+                              : Container(),
+                          SizedBox(height: height * 0.01),
+                          Text(
+                            DateFormat.yMd('es').format(item.date),
+                            style: Theme.of(context).textTheme.bodyText2,
+                            maxLines: 1,
+                          ),
+                        ],
                       ),
-                      item.description.isNotEmpty
-                          ? Column(
-                              children: [
-                                SizedBox(height: height * 0.01),
-                                Text(
-                                  item.description,
-                                  style: Theme.of(context).textTheme.bodyText2,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
-                            )
-                          : Container(),
-                      SizedBox(height: height * 0.01),
-                      Text(
-                        DateFormat.yMd('es').format(item.date),
-                        style: Theme.of(context).textTheme.bodyText2,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
+                    ),
+                    SizedBox(width: width * 0.01),
+                    Text(
+                      formatCurrency(item.import) + ' €',
+                      style: Theme.of(context).textTheme.bodyText2,
+                      maxLines: 1,
+                    ),
+                  ],
                 ),
-                SizedBox(width: width * 0.01),
-                Text(
-                  formatCurrency(item.import) + ' €',
-                  style: Theme.of(context).textTheme.bodyText2,
-                  maxLines: 1,
-                ),
+                item.categories.isNotEmpty
+                    ? Wrap(
+                        children: [
+                          ...item.categories.map((category) {
+                            final cat = Category.fromJson(category);
+                            return Container(
+                              decoration: BoxDecoration(
+                                color: Colors.black87,
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              padding: EdgeInsets.symmetric(
+                                vertical: height / 120,
+                                horizontal: width * 0.03,
+                              ),
+                              margin: EdgeInsets.symmetric(
+                                vertical: height / 200,
+                                horizontal: width * 0.01,
+                              ),
+                              child: Text(
+                                cat.name,
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            );
+                          }).toList()
+                        ],
+                      )
+                    : Container(),
               ],
             ),
           ),

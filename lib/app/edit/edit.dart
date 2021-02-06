@@ -1,5 +1,6 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:easy_budget/app/home/home.dart';
+import 'package:easy_budget/models/category.dart';
 import 'package:easy_budget/models/expense.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,6 +25,7 @@ class _EditScreenState extends State<EditScreen> {
   String _title, _description;
   double _import;
   DateTime _date;
+  //List<Category> _categories;
 
   @override
   void initState() {
