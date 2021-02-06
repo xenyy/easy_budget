@@ -6,7 +6,7 @@ Easy budget is a flutter app made by me for learning proposes.
 
 Is a Flutter app where you can add/update/delete your expenses and see the total of it. It uses riverpod for state management, freezed and sembast for local data storage.
 
-The app has state management, local store management (crud), routing, snackbars for errors and completed actions, error catching and theming.
+The app has state management, local store management (crud),app icon plus splash screen, routing, snackbars for errors and completed actions, error catching and theming.
 
 I'm new at flutter but I think the code is kinda well written and organized be free to use it if you want to.
 
