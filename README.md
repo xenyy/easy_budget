@@ -14,7 +14,7 @@ I'm new at flutter but I think the code is kinda well written and organized be f
 
 - [ ] Add dashboard.
 - [x] Add select date when adding expense.
-- [ ] Add expenses categories
+- [x] Add expenses categories
 - [x] Order home depending on date.
 - [x] Redesign home with different lists divided with dates (like grouped lists or something)
 - [ ] Add settings (dark theme,language (prob currency)).
