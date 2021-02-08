@@ -12,7 +12,7 @@ I'm new at flutter but I think the code is kinda well written and organized be f
 
 ## Todo's
 
-- [ ] Add dashboard.
+- [x] Add dashboard.
 - [x] Add select date when adding expense.
 - [x] Add expenses categories
 - [x] Order home depending on date.
@@ -22,15 +22,10 @@ I'm new at flutter but I think the code is kinda well written and organized be f
 - [ ] Add app video demo
 
 ## Hello there
+Hi if this has been useful for you it is free to star the repo. Also you could buy me coffe if you want! Any help to keep me developing is appreciated! Thank you in advanced.
+
 <a href="https://www.buymeacoffee.com/xeny" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
 
 ## Images
-
-![screenshot_1](/assets/images/screenshot_1.png)
-
-![screenshot_2](/assets/images/screenshot_2.png)
-
-![screenshot_3](/assets/images/screenshot_3.png)
-
-![screenshot_4](/assets/images/screenshot_4.png)
+## Video
 
