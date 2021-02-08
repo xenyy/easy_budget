@@ -33,7 +33,6 @@ class CategoriesScreen extends StatelessWidget {
                 color: Colors.white70,
               ),
               onPressed: () {
-                print('added');
                 showDialog(
                   context: context,
                   builder: (_) => AlertDialog(

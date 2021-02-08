@@ -17,6 +17,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
+    double _totalAmount;
+    double _amountPerCat;
 
     return Scaffold(
       appBar: AppBar(
@@ -58,11 +60,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ),
                           expensesState.maybeWhen(
                             data: (expenses) {
-                              double _totalAmount = expenses.map((e) => e.import).reduce((a, b) => a + b);
-                              var _amountPerCat = expenses
+                              expenses.isNotEmpty
+                                  ? _totalAmount = expenses.map((e) => e.import).reduce((a, b) => a + b)
+                                  : _totalAmount = 0;
+                              expenses.isNotEmpty ? _amountPerCat = expenses
                                   .map((e) => e)
-                                  .where((x) => x.categories.map((e) => Category.fromJson(e).id).contains(category.id))
-                                  .map((e) => e.import).fold(0, (a, b) => a+b); //fold handles if null not like reduce
+                                  ?.where((x) => x?.categories?.map((e) => Category.fromJson(e)?.id)?.contains(category?.id))
+                                  ?.map((e) => e.import)?.fold(0, (a, b) => a+b) //fold handles if null not like reduce
+                              : _amountPerCat = 0;
                               return Column(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -74,7 +79,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   ),
                                   SizedBox(height: height * 0.01),
                                   LinearProgressIndicator(
-                                    value: _amountPerCat / _totalAmount,
+                                    value: _totalAmount != 0 ? _amountPerCat / _totalAmount : 0,
                                     backgroundColor: Colors.grey,
                                     valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
                                   ),
