@@ -1,5 +1,6 @@
 import 'package:easy_budget/app/app_common_widgets/back_button.dart';
 import 'package:easy_budget/app/home/home.dart';
+import 'package:easy_budget/models/app_state_model/expenses_state.dart';
 import 'package:easy_budget/models/category.dart';
 import 'package:easy_budget/state/app_state.dart';
 import 'package:flutter/material.dart';
@@ -32,67 +33,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
           final categoriesState = watch(categoriesNotifierProvider.state);
           return categoriesState.when(
             data: (categories) {
-              return ListView(
-                padding: EdgeInsets.zero,
-                shrinkWrap: true,
-                children: [
-                  ...categories.map(
-                    (category) => Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      margin: EdgeInsets.symmetric(
-                        vertical: height * 0.01,
-                        horizontal: width * 0.04,
-                      ),
+              return SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
                       padding: EdgeInsets.symmetric(
+                        horizontal: width * 0.05,
                         vertical: height * 0.02,
-                        horizontal: width * 0.04,
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text(
-                            category.name.toUpperCase(),
-                            style: Theme.of(context).textTheme.headline1,
-                          ),
-                          expensesState.maybeWhen(
-                            data: (expenses) {
-                              expenses.isNotEmpty
-                                  ? _totalAmount = expenses.map((e) => e.import).reduce((a, b) => a + b)
-                                  : _totalAmount = 0;
-                              expenses.isNotEmpty ? _amountPerCat = expenses
-                                  .map((e) => e)
-                                  ?.where((x) => x?.categories?.map((e) => Category.fromJson(e)?.id)?.contains(category?.id))
-                                  ?.map((e) => e.import)?.fold(0, (a, b) => a+b) //fold handles if null not like reduce
-                              : _amountPerCat = 0;
-                              return Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  SizedBox(height: height * 0.01),
-                                  Text(
-                                    formatCurrency(_amountPerCat) + ' €',
-                                    style: Theme.of(context).textTheme.bodyText2,
-                                  ),
-                                  SizedBox(height: height * 0.01),
-                                  LinearProgressIndicator(
-                                    value: _totalAmount != 0 ? _amountPerCat / _totalAmount : 0,
-                                    backgroundColor: Colors.grey,
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
-                                  ),
-                                ],
-                              );
-                            },
-                            orElse: () => Container(),
-                          ),
-                        ],
+                      child: Text(
+                        'Expenses Summary',
+                        style: Theme.of(context).textTheme.headline6,
                       ),
                     ),
-                  ),
-                ],
+                    buildSummaryList(categories, height, width, context, expensesState, _totalAmount, _amountPerCat),
+                  ],
+                ),
               );
             },
             loading: () => LoadingIndicator(),
@@ -100,6 +58,76 @@ class _DashboardScreenState extends State<DashboardScreen> {
           );
         },
       ),
+    );
+  }
+
+  ListView buildSummaryList(List<Category> categories, double height, double width, BuildContext context,
+      Expenses expensesState, double _totalAmount, double _amountPerCat) {
+    return ListView(
+      shrinkWrap: true,
+      clipBehavior: Clip.none,
+      physics: NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.zero,
+      children: [
+        ...categories.map(
+          (category) => Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            margin: EdgeInsets.symmetric(
+              vertical: height * 0.01,
+              horizontal: width * 0.04,
+            ),
+            padding: EdgeInsets.symmetric(
+              vertical: height * 0.02,
+              horizontal: width * 0.04,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Text(
+                  category.name.toUpperCase(),
+                  style: Theme.of(context).textTheme.headline1,
+                ),
+                expensesState.maybeWhen(
+                  data: (expenses) {
+                    expenses.isNotEmpty
+                        ? _totalAmount = expenses.map((e) => e.import).reduce((a, b) => a + b)
+                        : _totalAmount = 0;
+                    expenses.isNotEmpty
+                        ? _amountPerCat = expenses
+                            .map((e) => e)
+                            ?.where((x) => x?.categories?.map((e) => Category.fromJson(e)?.id)?.contains(category?.id))
+                            ?.map((e) => e.import)
+                            ?.fold(0, (a, b) => a + b) //fold handles if null not like reduce
+                        : _amountPerCat = 0;
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: height * 0.01),
+                        Text(
+                          formatCurrency(_amountPerCat) + ' €',
+                          style: Theme.of(context).textTheme.bodyText2,
+                        ),
+                        SizedBox(height: height * 0.01),
+                        LinearProgressIndicator(
+                          value: _totalAmount != 0 ? _amountPerCat / _totalAmount : 0,
+                          backgroundColor: Colors.grey,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+                        ),
+                      ],
+                    );
+                  },
+                  orElse: () => Container(),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

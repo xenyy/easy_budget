@@ -101,7 +101,6 @@ class CategoriesScreen extends StatelessWidget {
       ),
       body: RefreshIndicator(
         color: Colors.black54,
-        displacement: height * 0.15,
         onRefresh: () {
           return context.read(categoriesNotifierProvider).refresh();
         },

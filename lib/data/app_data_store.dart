@@ -5,12 +5,11 @@ import 'package:easy_budget/models/category.dart';
 import 'package:easy_budget/models/expense.dart';
 import 'package:sembast/sembast.dart';
 
-
 const List<Category> defaultCategories = [
-  Category(id: '1',name: 'food'),
-  Category(id: '2',name:'treat'),
-  Category(id: '3',name:'clothes'),
-  Category(id: '4',name:'entertainment'),
+  Category(id: '1', name: 'food'),
+  Category(id: '2', name: 'treats'),
+  Category(id: '3', name: 'clothes'),
+  Category(id: '4', name: 'entertainment'),
 ];
 
 class AppDataStore implements DataStore {
@@ -43,7 +42,10 @@ class AppDataStore implements DataStore {
 
   Future<void> addExpense(Expense expense) async {
     try {
-      await _expensesStore.add(await _db, Expense.create(expense.title, expense.description, expense.import, expense.date, expense.categories).toJson());
+      await _expensesStore.add(
+          await _db,
+          Expense.create(expense.title, expense.description, expense.import, expense.date, expense.categories)
+              .toJson());
     } catch (e) {
       throw ExpenseException(failure: const ExpensesFailure.addExpenseFailure());
     }
@@ -75,7 +77,7 @@ class AppDataStore implements DataStore {
     try {
       final categoryList = await _categoriesStore.find(await _db);
 
-      if(categoryList.isEmpty){
+      if (categoryList.isEmpty) {
         _categoriesStore.addAll(await _db, defaultCategories.map((e) => e.toJson()).toList());
       }
 
@@ -92,7 +94,7 @@ class AppDataStore implements DataStore {
     }
   }
 
-  Future<void> addCategory (Category category) async {
+  Future<void> addCategory(Category category) async {
     try {
       await _categoriesStore.add(await _db, Category.create(category.name).toJson());
     } catch (e) {
@@ -100,9 +102,9 @@ class AppDataStore implements DataStore {
     }
   }
 
-  Future<void> updateCategory (Category category) async {}
+  Future<void> updateCategory(Category category) async {}
 
-  Future<void> deleteCategory (Category category) async {
+  Future<void> deleteCategory(Category category) async {
     try {
       final findCategoryDelete = Finder(filter: Filter.equal('id', category.id));
       await _categoriesStore.delete(await _db, finder: findCategoryDelete);
@@ -110,7 +112,6 @@ class AppDataStore implements DataStore {
       throw CategoryException(failure: const CategoryFailure.removeCategoryFailure());
     }
   }
-
 
 //Future<void> addLimit() async {}
   //Future<void> updateLimit() async {}

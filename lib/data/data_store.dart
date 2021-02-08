@@ -13,6 +13,4 @@ abstract class DataStore {
   Future<void> updateCategory (Category category);
   Future<void> deleteCategory (Category category);
 
-  //Categories
-
 }
