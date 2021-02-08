@@ -53,9 +53,19 @@ class AppDataStore implements DataStore {
 
   Future<void> updateExpense(String id, String title, String description, double import, DateTime date) async {
     try {
-      final expense = Expense(id: id, title: title, description: description, import: import, date: date);
-      final findExpenseUpdate = Finder(filter: Filter.equal('id', expense.id));
-      await _expensesStore.update(await _db, expense.toJson(), finder: findExpenseUpdate);
+      Expense expenseToUpdate;
+
+      final findExpenseUpdate = Finder(filter: Filter.equal('id', id));
+      final expenseFiltered = await _expensesStore.find(await _db, finder: findExpenseUpdate);
+
+      expenseFiltered.map((item) {
+        return expenseToUpdate = Expense.fromJson(item.value);
+      }).toList();
+
+      Expense newExpense = expenseToUpdate.copyWith(title: title, description: description, import: import, date: date);
+
+      await _expensesStore.update(await _db, newExpense.toJson(), finder: findExpenseUpdate);
+
     } catch (e) {
       throw ExpenseException(failure: const ExpensesFailure.editExpenseFailure());
     }
