@@ -1,3 +1,4 @@
+import 'package:easy_budget/app/categories/categories.dart';
 import 'package:easy_budget/app/dashboard/dashboard.dart';
 import 'package:easy_budget/app/details/details.dart';
 import 'package:easy_budget/app/edit/edit.dart';
@@ -9,6 +10,8 @@ class AppRoutes {
   static const details = DetailsScreen.routeName;
   static const edit = EditScreen.routeName;
   static const dashboard = DashboardScreen.routeName;
+  static const categories = CategoriesScreen.routeName;
+
 }
 
 class AppRouter {
@@ -31,6 +34,10 @@ class AppRouter {
       case AppRoutes.dashboard:
         return MaterialPageRoute<dynamic>(
           builder: (_) => DashboardScreen(),
+        );
+      case AppRoutes.categories:
+        return MaterialPageRoute<dynamic>(
+          builder: (_) => CategoriesScreen(),
         );
 
       default:

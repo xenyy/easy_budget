@@ -32,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final height = MediaQuery.of(context).size.height;
     return Scaffold(
       floatingActionButton: buildFloatingAddButton(context),
-      drawer: Drawer(),
+      drawer: DefaultDrawer(),
       body: ProviderListener(
         provider: exceptionExpensesProvider,
         onChange: (
@@ -91,7 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
               final width = MediaQuery.of(context).size.width;
               return RefreshIndicator(
                 color: Colors.black54,
-                onRefresh: () async {
+                onRefresh: () {
                   return context.read(expensesNotifierProvider).refresh();
                 },
                 displacement: height * 0.15,
@@ -437,6 +437,40 @@ class _HomeScreenState extends State<HomeScreen> {
       );
       Navigator.pop(context);
     }
+  }
+}
+
+class DefaultDrawer extends StatelessWidget {
+  const DefaultDrawer({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final height = MediaQuery.of(context).size.height;
+
+    return Drawer(
+      child: SafeArea(
+        child: Column(
+          children: [
+            SizedBox(height: height * 0.04),
+            Text('EASY BUDGET',style: Theme.of(context).textTheme.headline6),
+            SizedBox(height: height * 0.03),
+            ListTile(
+              leading: Icon(Icons.tag),
+              title: Text(
+                'Categories',
+                style: TextStyle(color: Colors.black, fontSize: 18),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, AppRoutes.categories);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 

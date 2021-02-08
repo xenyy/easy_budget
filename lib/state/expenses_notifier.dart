@@ -1,6 +1,5 @@
 import 'package:easy_budget/data/exceptions.dart';
 import 'package:easy_budget/models/app_state_model/expenses_state.dart';
-import 'package:easy_budget/models/category.dart';
 import 'package:easy_budget/models/expense.dart';
 import 'package:easy_budget/state/app_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -105,11 +104,8 @@ class ExpensesStateNotifier extends StateNotifier<Expenses> {
     _cacheState();
     state.maybeWhen(
       data: (expenses) {
-        state = Expenses.data(
-          expenses
-              .where((item) => item.id != expense.id)
-              .toList(), //retrive items where id not equals to expense id to remove
-        );
+        //retrive items where id not equals to expense id to remove
+        state = Expenses.data(expenses.where((item) => item.id != expense.id).toList());
       },
       orElse: () {},
     );

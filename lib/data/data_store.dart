@@ -11,7 +11,7 @@ abstract class DataStore {
   Future<List<Category>> getAllCategories();
   Future<void> addCategory (Category category);
   Future<void> updateCategory (Category category);
-  Future<void> removeCategory (Category category);
+  Future<void> deleteCategory (Category category);
 
   //Categories
 

@@ -1,6 +1,3 @@
-import 'dart:convert';
-
-import 'package:easy_budget/models/category.dart';
 import 'package:uuid/uuid.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 

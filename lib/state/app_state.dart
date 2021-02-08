@@ -23,4 +23,9 @@ final exceptionExpensesProvider = StateProvider<ExpenseException>((ref) {
   return null;
 });
 
+final exceptionCategoriesProvider = StateProvider<CategoryException>((ref) {
+  return null;
+});
+
+
 

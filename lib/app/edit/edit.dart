@@ -1,6 +1,5 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:easy_budget/app/home/home.dart';
-import 'package:easy_budget/models/category.dart';
 import 'package:easy_budget/models/expense.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

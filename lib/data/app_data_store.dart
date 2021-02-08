@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:easy_budget/data/app_db.dart';
 import 'package:easy_budget/data/data_store.dart';
 import 'package:easy_budget/data/exceptions.dart';
@@ -44,13 +42,9 @@ class AppDataStore implements DataStore {
   }
 
   Future<void> addExpense(Expense expense) async {
-
     try {
-      print('hey');
       await _expensesStore.add(await _db, Expense.create(expense.title, expense.description, expense.import, expense.date, expense.categories).toJson());
-
     } catch (e) {
-      print(e);
       throw ExpenseException(failure: const ExpensesFailure.addExpenseFailure());
     }
   }
@@ -98,9 +92,24 @@ class AppDataStore implements DataStore {
     }
   }
 
-  Future<void> addCategory (Category category) async {}
+  Future<void> addCategory (Category category) async {
+    try {
+      await _categoriesStore.add(await _db, Category.create(category.name).toJson());
+    } catch (e) {
+      throw CategoryException(failure: const CategoryFailure.addCategoryFailure());
+    }
+  }
+
   Future<void> updateCategory (Category category) async {}
-  Future<void> removeCategory (Category category) async {}
+
+  Future<void> deleteCategory (Category category) async {
+    try {
+      final findCategoryDelete = Finder(filter: Filter.equal('id', category.id));
+      await _categoriesStore.delete(await _db, finder: findCategoryDelete);
+    } catch (e) {
+      throw CategoryException(failure: const CategoryFailure.removeCategoryFailure());
+    }
+  }
 
 
 //Future<void> addLimit() async {}
